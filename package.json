@@ -1,0 +1,22 @@
+{
+  "name": "oct-nodejs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "multer": "^1.4.5-lts.1",
+    "oct-nodejs": "file:",
+    "pdf-lib": "^1.17.1",
+    "pdf-poppler": "^0.2.1",
+    "sharp": "^0.33.5",
+    "tesseract.js": "^5.1.1"
+  }
+}
