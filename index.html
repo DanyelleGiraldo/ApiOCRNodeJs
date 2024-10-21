@@ -14,7 +14,8 @@
         }
         textarea {
             width: 100%;
-            height: 300px;
+            height: 150px;
+            margin-bottom: 10px;
         }
         button {
             margin-top: 10px;
@@ -23,17 +24,20 @@
 </head>
 <body>
 
-    <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+    <form id="uploadForm" enctype="multipart/form-data">
         <input type="file" name="file" id="fileInput" />
         <button type="submit">Upload</button>
     </form>
 
     <h2>Texto extraído:</h2>
-    <textarea id="output" readonly></textarea>
+    <textarea id="outputText" readonly></textarea>
+
+    <h2>Número de cédula extraído:</h2>
+    <textarea id="outputCedula" readonly></textarea>
 
     <script>
         document.getElementById('uploadForm').addEventListener('submit', async function (event) {
-            event.preventDefault();  
+            event.preventDefault();  // Evitar que la página se recargue
         
             const fileInput = document.getElementById('fileInput');
             const formData = new FormData();
@@ -45,7 +49,8 @@
         
             formData.append('file', fileInput.files[0]);
         
-            document.getElementById('output').value = ''; 
+            document.getElementById('outputText').value = ''; 
+            document.getElementById('outputCedula').value = ''; 
         
             try {
                 const response = await fetch('http://localhost:3000/upload', {
@@ -56,14 +61,17 @@
                 if (response.ok) {
                     const result = await response.json();
                     console.log('Resultado del servidor:', result); 
-                    document.getElementById('output').value = result.text; 
+                    document.getElementById('outputText').value = result.text;  
+                    document.getElementById('outputCedula').value = result.cedula;  
                 } else {
                     const errorText = await response.text();
-                    document.getElementById('output').value = 'Error: ' + errorText;
+                    document.getElementById('outputText').value = 'Error: ' + errorText;
+                    document.getElementById('outputCedula').value = 'No se pudo extraer la cédula.';
                 }
             } catch (error) {
-                console.error('Error al subir el archivo:', error);
-                document.getElementById('output').value = 'Error al subir el archivo.';
+console.error('Error al subir el archivo:', error);
+                document.getElementById('outputText').value = 'Error al subir el archivo.';
+                document.getElementById('outputCedula').value = 'Error al extraer la cédula.';
             }
         });
     </script>

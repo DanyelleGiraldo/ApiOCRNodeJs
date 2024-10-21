@@ -47,18 +47,28 @@ async function convertPdfToImages(pdfPath) {
   }
 }
 
+function extractCedula(text) {
+  const regexCedula = /(?:CEDULA DE CIUDADANIA|NUMERO|NÚMERO)\s*[-—]*\s*(\d{2,3}[.\s]*\d{3}[.\s]*\d{3})/i;
+  const match = text.match(regexCedula);
+  return match ? match[1].replace(/\s+/g, '').replace(/\./g, '') : 'No se encontró el número de cédula';
+}
+
 async function processPdf(pdfPath) {
   try {
     const imagePaths = await convertPdfToImages(pdfPath);
-    let fullText = ''; 
+    let fullText = '';
 
     for (const imagePath of imagePaths) {
       const text = await processImage(imagePath);
       fullText += text + '\n';
     }
 
-    console.log(fullText.trim());
-    return fullText.trim(); 
+    console.log('Texto completo procesado: ', fullText.trim());
+
+    const cedula = extractCedula(fullText.trim());
+    console.log('Número de cédula extraído: ', cedula); 
+
+    return { fullText: fullText.trim(), cedula };
   } catch (err) {
     console.error('Error procesando el PDF:', err);
     return 'Error procesando el PDF';
@@ -84,12 +94,18 @@ app.post('/upload', (req, res) => {
     try {
       let result;
       if (fileExt === '.pdf') {
-        result = await processPdf(req.file.path); 
+        result = await processPdf(req.file.path);
       } else {
-        result = await processImage(req.file.path);
+        const text = await processImage(req.file.path);
+        const cedula = extractCedula(text);
+        console.log('Número de cédula extraído: ', cedula); 
+        result = { fullText: text, cedula };
       }
 
-      return res.json({ text: result });
+      return res.json({ 
+        text: result.fullText, 
+        cedula: result.cedula 
+      });
     } catch (error) {
       return res.status(500).json({ error: 'Error al procesar el archivo.' });
     }
